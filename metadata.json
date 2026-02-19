@@ -1,0 +1,5 @@
+{
+  "name": "Tow Trucks Brisbane",
+  "description": "Professional 24/7 emergency towing and roadside assistance services across Brisbane. Call 0499 600 300.",
+  "requestFramePermissions": ["geolocation"]
+}
