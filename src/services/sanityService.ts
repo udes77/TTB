@@ -18,7 +18,7 @@ export interface SanitySuburb {
 
 export const sanityService = {
   async getServices(): Promise<SanityService[]> {
-    if (!import.meta.env.VITE_SANITY_PROJECT_ID) return [];
+    if (!client) return [];
     return client.fetch(`*[_type == "service"] {
       _id,
       title,
@@ -30,7 +30,7 @@ export const sanityService = {
   },
 
   async getSuburbs(): Promise<SanitySuburb[]> {
-    if (!import.meta.env.VITE_SANITY_PROJECT_ID) return [];
+    if (!client) return [];
     return client.fetch(`*[_type == "suburb"] {
       _id,
       name,
@@ -40,12 +40,12 @@ export const sanityService = {
   },
 
   async getServiceBySlug(slug: string): Promise<SanityService | null> {
-    if (!import.meta.env.VITE_SANITY_PROJECT_ID) return null;
+    if (!client) return null;
     return client.fetch(`*[_type == "service" && slug.current == $slug][0]`, { slug });
   },
 
   async getSuburbBySlug(slug: string): Promise<SanitySuburb | null> {
-    if (!import.meta.env.VITE_SANITY_PROJECT_ID) return null;
+    if (!client) return null;
     return client.fetch(`*[_type == "suburb" && slug.current == $slug][0]`, { slug });
   }
 };

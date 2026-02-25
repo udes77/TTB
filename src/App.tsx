@@ -25,8 +25,7 @@ import {
   Construction
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'motion/react';
-import { PHONE_NUMBER, PHONE_LINK, GITHUB_IMAGE_BASE, GALLERY_IMAGES } from './constants';
-import { SanityProvider, useSanity } from './context/SanityContext';
+import { PHONE_NUMBER, PHONE_LINK, SERVICES, SUBURBS, IMAGE_BASE_URL, GALLERY_IMAGES } from './constants';
 import EmergencyLocation from './pages/EmergencyLocation';
 import ServicePage from './pages/ServicePage';
 import SuburbPage from './pages/SuburbPage';
@@ -67,6 +66,10 @@ const Navbar = () => {
   React.useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
+    
+    // Signal for pre-rendering
+    document.dispatchEvent(new Event('render-event'));
+    
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -106,13 +109,23 @@ const Navbar = () => {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                className={`text-sm font-medium transition-colors hover:text-cyan-400 ${scrolled || !isHome ? 'text-slate-300' : 'text-white/90'}`}
-              >
-                {link.name}
-              </a>
+              link.href.startsWith('/#') || link.href.startsWith('#') ? (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  className={`text-sm font-medium transition-colors hover:text-cyan-400 ${scrolled || !isHome ? 'text-slate-300' : 'text-white/90'}`}
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className={`text-sm font-medium transition-colors hover:text-cyan-400 ${scrolled || !isHome ? 'text-slate-300' : 'text-white/90'}`}
+                >
+                  {link.name}
+                </Link>
+              )
             ))}
             <a 
               href={PHONE_LINK} 
@@ -144,14 +157,25 @@ const Navbar = () => {
           >
             <div className="px-4 pt-4 pb-20 space-y-2">
               {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="block px-3 py-4 text-base font-medium text-slate-300 hover:text-yellow-400 hover:bg-slate-800 rounded-lg"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.name}
-                </a>
+                link.href.startsWith('/#') || link.href.startsWith('#') ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="block px-3 py-4 text-base font-medium text-slate-300 hover:text-yellow-400 hover:bg-slate-800 rounded-lg"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="block px-3 py-4 text-base font-medium text-slate-300 hover:text-yellow-400 hover:bg-slate-800 rounded-lg"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                )
               ))}
               <a 
                 href={PHONE_LINK} 
@@ -190,20 +214,20 @@ const AreaTag: React.FC<{ name: string }> = ({ name }) => (
 
 const InsuranceSection = () => {
   const insurers = [
-    { name: 'Allianz', logo: '1_Allianz.png' },
-    { name: 'Apia', logo: '2_Apia.png' },
-    { name: 'Auto & General', logo: '3_Auto.png' },
-    { name: 'Budget Direct', logo: '4_Budget.png' },
-    { name: 'Coles', logo: '5_coles.png' },
-    { name: 'Insure My Ride', logo: '6_Insure-MyRide.png' },
-    { name: 'NRMA', logo: '7_NRMA.png' },
-    { name: 'QBE', logo: '8_QBE.png' },
-    { name: 'RACQ', logo: '9_RacQ.png' },
-    { name: 'Shannons', logo: '10_Shannons.png' },
-    { name: 'Toyota', logo: '12_Toyota-Logo.png' },
-    { name: 'Wesfarmers', logo: '13_wesfarmers.png' },
-    { name: 'Youi', logo: '14_youi.png' },
-    { name: 'Zurich', logo: '15_zurich-insurance-group-logo.png' },
+    { name: 'Allianz', logo: 'insurance_1_Allianz.webp' },
+    { name: 'Apia', logo: 'insurance_2_Apia.webp' },
+    { name: 'Auto & General', logo: 'insurance_3_Auto.webp' },
+    { name: 'Budget Direct', logo: 'insurance_4_Budget.webp' },
+    { name: 'Coles', logo: 'insurance_5_coles.webp' },
+    { name: 'Insure My Ride', logo: 'insurance_6_Insure-MyRide.webp' },
+    { name: 'NRMA', logo: 'insurance_7_NRMA.webp' },
+    { name: 'QBE', logo: 'insurance_8_QBE.webp' },
+    { name: 'RACQ', logo: 'insurance_9_RacQ.webp' },
+    { name: 'Shannons', logo: 'insurance_10_Shannons.webp' },
+    { name: 'Toyota', logo: 'insurance_12_Toyota-Logo.webp' },
+    { name: 'Wesfarmers', logo: 'insurance_13_wesfarmers.webp' },
+    { name: 'Youi', logo: 'insurance_14_youi.webp' },
+    { name: 'Zurich', logo: 'insurance_15_zurich-insurance-group-logo.webp' },
   ];
 
   return (
@@ -224,7 +248,7 @@ const InsuranceSection = () => {
             <div key={i} className="mx-16 flex flex-col items-center justify-center transition-all duration-500 hover:scale-110">
               <div className="w-64 h-32 flex items-center justify-center mb-4 p-4 bg-white rounded-xl shadow-sm border border-slate-200">
                 <img 
-                  src={`${GITHUB_IMAGE_BASE}${insurer.logo}`} 
+                  src={`${IMAGE_BASE_URL}${insurer.logo}`} 
                   alt={insurer.name} 
                   className="max-w-full max-h-full object-contain"
                   onError={(e) => {
@@ -262,7 +286,6 @@ const Reveal = ({ children, width = "100%" }: { children: React.ReactNode, width
 };
 
 const Home = () => {
-  const { services, suburbs, isSanityConnected } = useSanity();
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
@@ -303,7 +326,7 @@ const Home = () => {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Tow Trucks Brisbane",
-    "image": `${GITHUB_IMAGE_BASE}Tow-trucks-brisbane1.jpg`,
+    "image": `${IMAGE_BASE_URL}tow-trucks-brisbane0c66.webp`,
     "@id": "https://towtrucksbrisbane.com.au",
     "url": "https://towtrucksbrisbane.com.au",
     "telephone": PHONE_NUMBER,
@@ -349,7 +372,7 @@ const Home = () => {
         <link rel="canonical" href="https://towtrucksbrisbane.com.au" />
         <meta property="og:title" content="Tow Trucks Brisbane | 24/7 Emergency Towing" />
         <meta property="og:description" content="Reliable 24/7 towing services in Brisbane since 1992. Fast response for breakdowns and accidents." />
-        <meta property="og:image" content={`${GITHUB_IMAGE_BASE}Tow-trucks-brisbane1.jpg`} />
+        <meta property="og:image" content={`${IMAGE_BASE_URL}tow-trucks-brisbane0c66.webp`} />
         <meta property="og:url" content="https://towtrucksbrisbane.com.au" />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">
@@ -364,7 +387,7 @@ const Home = () => {
           className="absolute inset-0 z-0"
         >
           <img 
-            src={`${GITHUB_IMAGE_BASE}Tow-trucks-brisbane1.jpg`} 
+            src={`${IMAGE_BASE_URL}tow-trucks-brisbane0c66.webp`} 
             alt="Tow truck in Brisbane" 
             className="w-full h-full object-cover brightness-[0.4]"
             referrerPolicy="no-referrer"
@@ -466,7 +489,7 @@ const Home = () => {
         </Reveal>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => {
+          {SERVICES.map((service, index) => {
             const IconComponent = {
               Truck,
               Car,
@@ -515,13 +538,13 @@ const Home = () => {
               </p>
               
               <div className="flex flex-wrap gap-3 mb-10">
-                {suburbs.slice(0, 15).map(suburb => (
+                {SUBURBS.slice(0, 15).map(suburb => (
                   <Link key={suburb.id} to={`/suburb/${suburb.id}`}>
                     <AreaTag name={suburb.name} />
                   </Link>
                 ))}
                 <Link to="/suburbs" className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-400 text-slate-950 text-sm font-bold hover:bg-yellow-500 transition-colors">
-                  View All {suburbs.length} Areas
+                  View All {SUBURBS.length} Areas
                 </Link>
               </div>
 
@@ -542,7 +565,7 @@ const Home = () => {
             <div className="lg:w-1/2 w-full">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border-8 border-slate-800 group">
                 <img 
-                  src={`${GITHUB_IMAGE_BASE}Tow-trucks-brisbane12.jpg`} 
+                  src={`${IMAGE_BASE_URL}tow-trucks-brisbane133.webp`} 
                   alt="Tow Trucks Brisbane Fleet" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   referrerPolicy="no-referrer"
@@ -571,7 +594,7 @@ const Home = () => {
             <div className="order-2 lg:order-1">
               <div className="grid grid-cols-2 gap-4">
                 <img 
-                  src={`${GITHUB_IMAGE_BASE}Tow-trucks-brisbane2.jpg`} 
+                  src={`${IMAGE_BASE_URL}tow-trucks-brisbane26a90.webp`} 
                   alt="Tow truck detail" 
                   className="rounded-2xl shadow-lg border-2 border-slate-800" 
                   referrerPolicy="no-referrer" 
@@ -580,7 +603,7 @@ const Home = () => {
                   }}
                 />
                 <img 
-                  src={`${GITHUB_IMAGE_BASE}Tow-trucks-brisbane3.jpg`} 
+                  src={`${IMAGE_BASE_URL}tow-trucks-brisbane2e89.webp`} 
                   alt="Mechanic working" 
                   className="rounded-2xl shadow-lg mt-8 border-2 border-slate-800" 
                   referrerPolicy="no-referrer" 
@@ -757,7 +780,7 @@ const FAQSection = () => {
     },
     {
       question: "Can you tow my car if it's in an underground car park?",
-      answer: "Yes, we have specialized low-clearance tow trucks specifically designed for underground car parks and tight spaces."
+      answer: "Yes, we have specialised low-clearance tow trucks specifically designed for underground car parks and tight spaces."
     },
     {
       question: "Are you fully insured?",
@@ -836,19 +859,16 @@ function ScrollToTop() {
 export default function App() {
   return (
     <HelmetProvider>
-      <SanityProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <AppContent />
-        </BrowserRouter>
-      </SanityProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <AppContent />
+      </BrowserRouter>
     </HelmetProvider>
   );
 }
 
 function AppContent() {
   const location = useLocation();
-  const { services } = useSanity();
   
   return (
     <div className="min-h-screen bg-slate-950 font-sans text-white selection:bg-cyan-400 selection:text-slate-950 overflow-x-hidden">
@@ -910,21 +930,23 @@ function AppContent() {
                 <div>
                   <h5 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Our Services</h5>
                   <ul className="space-y-4">
-                    {services.map(service => (
+                    {SERVICES.map(service => (
                       <li key={service.id}>
                         <Link to={`/service/${service.id}`} className="text-slate-400 hover:text-yellow-400 transition-colors text-sm">{service.title}</Link>
                       </li>
                     ))}
                   </ul>
                 </div>
-                
+
                 <div>
-                  <h5 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Newsletter</h5>
-                  <p className="text-slate-400 text-sm mb-4">Get seasonal car care tips and local traffic updates.</p>
-                  <div className="flex gap-2">
-                    <input type="email" placeholder="Email" className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm w-full text-white focus:outline-none focus:border-yellow-400" />
-                    <button className="bg-yellow-400 text-slate-950 px-4 py-2 rounded-lg text-sm font-bold">Join</button>
-                  </div>
+                  <h5 className="font-bold text-white mb-6 uppercase text-xs tracking-widest">Popular Areas</h5>
+                  <ul className="grid grid-cols-2 gap-x-4 gap-y-4">
+                    {SUBURBS.slice(0, 12).map(suburb => (
+                      <li key={suburb.id}>
+                        <Link to={`/suburb/${suburb.id}`} className="text-slate-400 hover:text-yellow-400 transition-colors text-sm">{suburb.name}</Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
               

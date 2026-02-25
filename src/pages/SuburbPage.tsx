@@ -2,18 +2,16 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, ChevronRight, Phone, Clock, Truck, Star, Car, Wrench, ShieldCheck, Box, Home, Anchor, Tent, Siren, Construction } from 'lucide-react';
-import { PHONE_NUMBER, PHONE_LINK, GITHUB_IMAGE_BASE, GALLERY_IMAGES } from '../constants';
-import { useSanity } from '../context/SanityContext';
+import { SUBURBS, PHONE_NUMBER, PHONE_LINK, SERVICES, IMAGE_BASE_URL, GALLERY_IMAGES } from '../constants';
 
 const SuburbPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { suburbs, services } = useSanity();
-  const suburb = suburbs.find(s => s.id === id);
+  const suburb = SUBURBS.find(s => s.id === id);
   
-  const suburbIndex = suburbs.findIndex(s => s.id === id);
-  const localImage = GALLERY_IMAGES[suburbIndex + 10] || GALLERY_IMAGES[2];
+  const suburbIndex = SUBURBS.findIndex(s => s.id === id);
+  const localImage = GALLERY_IMAGES[suburbIndex % GALLERY_IMAGES.length];
 
-  const displayTitle = suburb.name.toLowerCase().includes('towing') ? suburb.name : `Towing ${suburb.name}`;
+  const displayTitle = suburb?.name.toLowerCase().includes('towing') ? suburb.name : `Towing ${suburb?.name}`;
   const metaTitle = `${displayTitle} | 24/7 Towing Services | Tow Trucks Brisbane`;
 
   if (!suburb) return <div className="py-20 text-center">Suburb not found</div>;
@@ -53,7 +51,7 @@ const SuburbPage: React.FC = () => {
             <div className="lg:w-1/3">
               <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-8 border-slate-800">
                 <img 
-                  src={`${GITHUB_IMAGE_BASE}${localImage}`} 
+                  src={`${IMAGE_BASE_URL}${localImage}`} 
                   alt={`Tow truck in ${suburb.name}`}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
@@ -82,7 +80,7 @@ const SuburbPage: React.FC = () => {
                 
                 <h3 className="text-2xl font-bold text-white mt-10 mb-6">Our {suburb.name} Services Include:</h3>
                 <div className="grid sm:grid-cols-2 gap-4 not-prose">
-                  {services.map(service => {
+                  {SERVICES.map(service => {
                     const IconComponent = {
                       Truck,
                       Car,
@@ -125,7 +123,7 @@ const SuburbPage: React.FC = () => {
                 <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8">
                   <h4 className="text-xl font-bold text-white mb-6">Nearby Service Areas</h4>
                   <ul className="grid grid-cols-1 gap-3">
-                    {suburbs.filter(s => s.id !== id && s.region === suburb.region).map(s => (
+                    {SUBURBS.filter(s => s.id !== id && s.region === suburb.region).map(s => (
                       <li key={s.id}>
                         <Link to={`/suburb/${s.id}`} className="flex items-center gap-2 text-slate-400 hover:text-yellow-400 transition-colors">
                           <MapPin size={14} className="opacity-50" />

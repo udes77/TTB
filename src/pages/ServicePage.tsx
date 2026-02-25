@@ -2,17 +2,15 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Truck, ChevronRight, Phone, ShieldCheck, Clock, MapPin } from 'lucide-react';
-import { PHONE_NUMBER, PHONE_LINK, GITHUB_IMAGE_BASE, GALLERY_IMAGES } from '../constants';
-import { useSanity } from '../context/SanityContext';
+import { SERVICES, PHONE_NUMBER, PHONE_LINK, IMAGE_BASE_URL, GALLERY_IMAGES } from '../constants';
 
 const ServicePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { services } = useSanity();
-  const service = services.find(s => s.id === id);
+  const service = SERVICES.find(s => s.id === id);
   
   // Use a consistent but different image for each service if possible
-  const serviceIndex = services.findIndex(s => s.id === id);
-  const heroImage = GALLERY_IMAGES[serviceIndex + 5] || GALLERY_IMAGES[0];
+  const serviceIndex = SERVICES.findIndex(s => s.id === id);
+  const heroImage = GALLERY_IMAGES[serviceIndex % GALLERY_IMAGES.length];
 
   if (!service) return <div className="py-20 text-center">Service not found</div>;
 
@@ -27,7 +25,7 @@ const ServicePage: React.FC = () => {
       <section className="bg-slate-900 py-24 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <img 
-            src={`${GITHUB_IMAGE_BASE}${heroImage}`} 
+            src={`${IMAGE_BASE_URL}${heroImage}`} 
             className="w-full h-full object-cover" 
             alt="Background" 
             referrerPolicy="no-referrer" 
@@ -63,7 +61,7 @@ const ServicePage: React.FC = () => {
                 <ul className="space-y-4 list-none p-0">
                   {[
                     '24/7 Availability across all Brisbane suburbs',
-                    'Modern fleet of specialized tow trucks',
+                    'Modern fleet of specialised tow trucks',
                     'Competitive, transparent pricing',
                     'Fully insured and licensed operators'
                   ].map((item, i) => (
@@ -96,7 +94,7 @@ const ServicePage: React.FC = () => {
                 <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-sm">
                   <h4 className="text-xl font-bold text-white mb-6 border-b border-slate-800 pb-4">Other Services</h4>
                   <ul className="space-y-4">
-                    {services.filter(s => s.id !== id).map(s => (
+                    {SERVICES.filter(s => s.id !== id).map(s => (
                       <li key={s.id}>
                         <Link to={`/service/${s.id}`} className="flex items-center justify-between group text-slate-400 hover:text-yellow-400 font-medium transition-colors">
                           {s.title}

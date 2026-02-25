@@ -2,6 +2,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
+import nodemailer from "nodemailer";
 
 const LOG_FILE = path.join(process.cwd(), "form_logs.json");
 const CONFIG_FILE = path.join(process.cwd(), "mail_config.json");
@@ -26,8 +27,45 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Email helper
+  const sendEmail = async (subject: string, text: string, html: string) => {
+    const config = readJsonFile(CONFIG_FILE, { smtpHost: "", smtpPort: "", smtpUser: "", smtpPass: "", fromEmail: "" });
+    
+    if (!config.smtpHost) {
+      console.log("--- EMAIL SIMULATION (No SMTP Config) ---");
+      console.log(`To: info@towtrucksbrisbane.com.au`);
+      console.log(`Subject: ${subject}`);
+      console.log(`Body: ${text}`);
+      console.log("-----------------------------------------");
+      return;
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: config.smtpHost,
+      port: parseInt(config.smtpPort),
+      secure: config.smtpPort === "465",
+      auth: {
+        user: config.smtpUser,
+        pass: config.smtpPass,
+      },
+    });
+
+    try {
+      await transporter.sendMail({
+        from: config.fromEmail || "no-reply@towtrucksbrisbane.com.au",
+        to: "info@towtrucksbrisbane.com.au",
+        subject,
+        text,
+        html,
+      });
+      console.log(`Email sent successfully to info@towtrucksbrisbane.com.au: ${subject}`);
+    } catch (error) {
+      console.error("Failed to send email:", error);
+    }
+  };
+
   // API Route for Emergency Location
-  app.post("/api/emergency-location", (req, res) => {
+  app.post("/api/emergency-location", async (req, res) => {
     const { name, phone, latitude, longitude, accuracy } = req.body;
     
     const entry = {
@@ -41,11 +79,17 @@ async function startServer() {
     logs.push(entry);
     writeJsonFile(LOG_FILE, logs);
 
-    console.log("--- EMERGENCY LOCATION RECEIVED ---");
-    console.log(`Name: ${name}`);
-    console.log(`Phone: ${phone}`);
-    console.log(`Location: https://www.google.com/maps?q=${latitude},${longitude}`);
-    console.log("-----------------------------------");
+    const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    
+    await sendEmail(
+      `EMERGENCY: Location Received from ${name}`,
+      `Emergency location request received.\n\nName: ${name}\nPhone: ${phone}\nLocation: ${mapsUrl}\nAccuracy: ${accuracy}m`,
+      `<h2>Emergency Location Received</h2>
+       <p><strong>Name:</strong> ${name}</p>
+       <p><strong>Phone:</strong> ${phone}</p>
+       <p><strong>Location:</strong> <a href="${mapsUrl}">${mapsUrl}</a></p>
+       <p><strong>Accuracy:</strong> ${accuracy}m</p>`
+    );
 
     res.json({ 
       success: true, 
@@ -54,7 +98,7 @@ async function startServer() {
   });
 
   // API Route for Contact Form
-  app.post("/api/contact", (req, res) => {
+  app.post("/api/contact", async (req, res) => {
     const { name, phone, service, message } = req.body;
     
     const entry = {
@@ -67,6 +111,16 @@ async function startServer() {
     const logs = readJsonFile(LOG_FILE, []);
     logs.push(entry);
     writeJsonFile(LOG_FILE, logs);
+
+    await sendEmail(
+      `New Quote Request: ${service} from ${name}`,
+      `New quote request received.\n\nName: ${name}\nPhone: ${phone}\nService: ${service}\nMessage: ${message}`,
+      `<h2>New Quote Request</h2>
+       <p><strong>Name:</strong> ${name}</p>
+       <p><strong>Phone:</strong> ${phone}</p>
+       <p><strong>Service:</strong> ${service}</p>
+       <p><strong>Message:</strong> ${message}</p>`
+    );
 
     res.json({ success: true, message: "Quote request received." });
   });

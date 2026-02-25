@@ -2,12 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { MapPin, ChevronRight, Truck } from 'lucide-react';
-import { useSanity } from '../context/SanityContext';
+import { SUBURBS } from '../constants';
 
 const SuburbsList: React.FC = () => {
-  const { suburbs } = useSanity();
   // Group suburbs by region
-  const regions = Array.from(new Set(suburbs.map(s => s.region)));
+  const regions = Array.from(new Set(SUBURBS.map(s => s.region)));
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -42,7 +41,7 @@ const SuburbsList: React.FC = () => {
                   <h2 className="text-2xl font-bold text-white">{region}</h2>
                 </div>
                 <ul className="grid grid-cols-1 gap-3">
-                  {suburbs.filter(s => s.region === region).map(suburb => (
+                  {SUBURBS.filter(s => s.region === region).map(suburb => (
                     <li key={suburb.id}>
                       <Link 
                         to={`/suburb/${suburb.id}`}
@@ -64,7 +63,7 @@ const SuburbsList: React.FC = () => {
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-6">Don't see your suburb?</h2>
           <p className="text-lg text-slate-400 mb-8">
-            We often travel beyond our primary service areas for specialized transport and emergency recovery. Give us a call to see if we can help you.
+            We often travel beyond our primary service areas for specialised transport and emergency recovery. Give us a call to see if we can help you.
           </p>
           <a 
             href="tel:0499600300" 

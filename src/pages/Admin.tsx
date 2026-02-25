@@ -18,7 +18,7 @@ interface MailConfig {
 }
 
 export default function Admin() {
-  const { isSanityConnected } = useSanity();
+  const { isSanityConnected, connectionError } = useSanity();
   const [password, setPassword] = React.useState('');
   const [isAuthorized, setIsAuthorized] = React.useState(false);
   const [logs, setLogs] = React.useState<LogEntry[]>([]);
@@ -167,14 +167,40 @@ export default function Admin() {
                 <div className={`w-3 h-3 rounded-full ${isSanityConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
                 <div>
                   <p className="text-sm font-bold text-white">Sanity CMS</p>
-                  <p className="text-xs text-slate-500">{isSanityConnected ? 'Connected & Active' : 'Not Connected'}</p>
+                  <p className={`text-xs ${isSanityConnected ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {isSanityConnected ? 'Connected & Active' : 'Connection Failed'}
+                  </p>
                 </div>
               </div>
-              {!isSanityConnected && (
-                <p className="mt-4 text-xs text-slate-500 leading-relaxed italic">
-                  To connect Sanity, add VITE_SANITY_PROJECT_ID to your environment variables.
-                </p>
+              
+              {connectionError && (
+                <div className="mt-4 p-4 rounded-xl bg-rose-500/5 border border-rose-500/10">
+                  <p className="text-xs font-bold text-rose-400 mb-1 flex items-center gap-2">
+                    <AlertCircle size={12} />
+                    Error Details:
+                  </p>
+                  <p className="text-[10px] text-slate-500 break-all font-mono">
+                    {connectionError}
+                  </p>
+                </div>
               )}
+
+              <div className="mt-6 space-y-4">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Troubleshooting</h3>
+                <ul className="space-y-2">
+                  {[
+                    'Check VITE_SANITY_PROJECT_ID is correct',
+                    'Ensure dataset "production" exists',
+                    'Add this URL to Sanity CORS origins',
+                    'Try setting API Version to 2024-02-24'
+                  ].map((tip, i) => (
+                    <li key={i} className="flex items-start gap-2 text-[10px] text-slate-500">
+                      <div className="w-1 h-1 rounded-full bg-yellow-400 mt-1.5" />
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <div className="bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-800">

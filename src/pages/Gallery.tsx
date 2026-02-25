@@ -3,14 +3,14 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { ChevronRight, Camera, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { GITHUB_IMAGE_BASE, GALLERY_IMAGES } from '../constants';
+import { IMAGE_BASE_URL, GALLERY_IMAGES } from '../constants';
 
 const Gallery: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 pt-24 pb-12">
       <Helmet>
         <title>Gallery | Tow Trucks Brisbane | Our Fleet in Action</title>
-        <meta name="description" content="View our gallery of tow trucks and specialized equipment in action across Brisbane. We handle everything from cars to heavy machinery." />
+        <meta name="description" content="View our gallery of tow trucks and specialised equipment in action across Brisbane. We handle everything from cars to heavy machinery." />
       </Helmet>
 
       <section className="py-12">
@@ -28,7 +28,7 @@ const Gallery: React.FC = () => {
             </div>
             <h1 className="text-4xl md:text-6xl font-black text-white mb-6">Brisbane's Best Equipment</h1>
             <p className="text-xl text-slate-400 leading-relaxed">
-              Take a look at our modern fleet of tow trucks and specialized equipment. We're ready for any job, big or small, across South East Queensland.
+              Take a look at our modern fleet of tow trucks and specialised equipment. We're ready for any job, big or small, across South East Queensland.
             </p>
           </div>
 
@@ -44,7 +44,7 @@ const Gallery: React.FC = () => {
                 className="aspect-square rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl group"
               >
                 <img 
-                  src={`${GITHUB_IMAGE_BASE}${img}`} 
+                  src={`${IMAGE_BASE_URL}${img}`} 
                   alt={`Tow truck operation ${i + 1}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   referrerPolicy="no-referrer"
