@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://towtrucksbrisbane.com.au/sitemap.xml

@@ -3,9 +3,21 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --animate-marquee: marquee 30s linear infinite;
+  --animate-flash-yellow: flash-yellow 1s infinite;
+  --animate-flash-blue: flash-blue 1s infinite;
 
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
+  }
+
+  @keyframes flash-yellow {
+    0%, 100% { opacity: 0.3; filter: brightness(1); }
+    50% { opacity: 1; filter: brightness(1.5) drop-shadow(0 0 10px #facc15); }
+  }
+
+  @keyframes flash-blue {
+    0%, 100% { opacity: 0.3; filter: brightness(1); }
+    50% { opacity: 1; filter: brightness(1.5) drop-shadow(0 0 10px #22d3ee); }
   }
 }
