@@ -14,6 +14,7 @@ interface MailConfig {
   smtpHost: string;
   smtpPort: string;
   smtpUser: string;
+  smtpPass: string;
   fromEmail: string;
 }
 
@@ -26,6 +27,7 @@ export default function Admin() {
     smtpHost: '',
     smtpPort: '',
     smtpUser: '',
+    smtpPass: '',
     fromEmail: ''
   });
   const [status, setStatus] = React.useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -235,6 +237,15 @@ export default function Admin() {
                     type="text" 
                     value={config.smtpUser}
                     onChange={(e) => setConfig({...config, smtpUser: e.target.value})}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">SMTP Password</label>
+                  <input 
+                    type="password" 
+                    value={config.smtpPass}
+                    onChange={(e) => setConfig({...config, smtpPass: e.target.value})}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-yellow-400"
                   />
                 </div>

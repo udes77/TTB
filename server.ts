@@ -27,6 +27,12 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Request logger
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+  });
+
   // Email helper
   const sendEmail = async (subject: string, text: string, html: string) => {
     const config = readJsonFile(CONFIG_FILE, { smtpHost: "", smtpPort: "", smtpUser: "", smtpPass: "", fromEmail: "" });
@@ -66,63 +72,75 @@ async function startServer() {
 
   // API Route for Emergency Location
   app.post("/api/emergency-location", async (req, res) => {
-    const { name, phone, latitude, longitude, accuracy } = req.body;
-    
-    const entry = {
-      id: Date.now(),
-      type: "Emergency Location",
-      timestamp: new Date().toISOString(),
-      data: { name, phone, latitude, longitude, accuracy }
-    };
+    try {
+      console.log("Received emergency location request:", req.body);
+      const { name, phone, latitude, longitude, accuracy } = req.body;
+      
+      const entry = {
+        id: Date.now(),
+        type: "Emergency Location",
+        timestamp: new Date().toISOString(),
+        data: { name, phone, latitude, longitude, accuracy }
+      };
 
-    const logs = readJsonFile(LOG_FILE, []);
-    logs.push(entry);
-    writeJsonFile(LOG_FILE, logs);
+      const logs = readJsonFile(LOG_FILE, []);
+      logs.push(entry);
+      writeJsonFile(LOG_FILE, logs);
 
-    const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    
-    await sendEmail(
-      `EMERGENCY: Location Received from ${name}`,
-      `Emergency location request received.\n\nName: ${name}\nPhone: ${phone}\nLocation: ${mapsUrl}\nAccuracy: ${accuracy}m`,
-      `<h2>Emergency Location Received</h2>
-       <p><strong>Name:</strong> ${name}</p>
-       <p><strong>Phone:</strong> ${phone}</p>
-       <p><strong>Location:</strong> <a href="${mapsUrl}">${mapsUrl}</a></p>
-       <p><strong>Accuracy:</strong> ${accuracy}m</p>`
-    );
+      const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      
+      await sendEmail(
+        `EMERGENCY: Location Received from ${name}`,
+        `Emergency location request received.\n\nName: ${name}\nPhone: ${phone}\nLocation: ${mapsUrl}\nAccuracy: ${accuracy}m`,
+        `<h2>Emergency Location Received</h2>
+         <p><strong>Name:</strong> ${name}</p>
+         <p><strong>Phone:</strong> ${phone}</p>
+         <p><strong>Location:</strong> <a href="${mapsUrl}">${mapsUrl}</a></p>
+         <p><strong>Accuracy:</strong> ${accuracy}m</p>`
+      );
 
-    res.json({ 
-      success: true, 
-      message: "Location sent to dispatch. A driver will call you shortly." 
-    });
+      res.json({ 
+        success: true, 
+        message: "Location sent to dispatch. A driver will call you shortly." 
+      });
+    } catch (error) {
+      console.error("Error in emergency-location handler:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
   });
 
   // API Route for Contact Form
   app.post("/api/contact", async (req, res) => {
-    const { name, phone, service, message } = req.body;
-    
-    const entry = {
-      id: Date.now(),
-      type: "Quote Request",
-      timestamp: new Date().toISOString(),
-      data: { name, phone, service, message }
-    };
+    try {
+      console.log("Received contact form request:", req.body);
+      const { name, phone, service, message } = req.body;
+      
+      const entry = {
+        id: Date.now(),
+        type: "Quote Request",
+        timestamp: new Date().toISOString(),
+        data: { name, phone, service, message }
+      };
 
-    const logs = readJsonFile(LOG_FILE, []);
-    logs.push(entry);
-    writeJsonFile(LOG_FILE, logs);
+      const logs = readJsonFile(LOG_FILE, []);
+      logs.push(entry);
+      writeJsonFile(LOG_FILE, logs);
 
-    await sendEmail(
-      `New Quote Request: ${service} from ${name}`,
-      `New quote request received.\n\nName: ${name}\nPhone: ${phone}\nService: ${service}\nMessage: ${message}`,
-      `<h2>New Quote Request</h2>
-       <p><strong>Name:</strong> ${name}</p>
-       <p><strong>Phone:</strong> ${phone}</p>
-       <p><strong>Service:</strong> ${service}</p>
-       <p><strong>Message:</strong> ${message}</p>`
-    );
+      await sendEmail(
+        `New Quote Request: ${service} from ${name}`,
+        `New quote request received.\n\nName: ${name}\nPhone: ${phone}\nService: ${service}\nMessage: ${message}`,
+        `<h2>New Quote Request</h2>
+         <p><strong>Name:</strong> ${name}</p>
+         <p><strong>Phone:</strong> ${phone}</p>
+         <p><strong>Service:</strong> ${service}</p>
+         <p><strong>Message:</strong> ${message}</p>`
+      );
 
-    res.json({ success: true, message: "Quote request received." });
+      res.json({ success: true, message: "Quote request received." });
+    } catch (error) {
+      console.error("Error in contact handler:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
   });
 
   // Admin Routes
@@ -158,6 +176,19 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
+    
+    // Catch-all for SPA in dev mode
+    app.use("*", async (req, res, next) => {
+      try {
+        const url = req.originalUrl;
+        let template = fs.readFileSync(path.resolve(process.cwd(), "index.html"), "utf-8");
+        template = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
+      }
+    });
   } else {
     app.use(express.static(path.join(process.cwd(), "dist")));
     app.get("*", (req, res) => {

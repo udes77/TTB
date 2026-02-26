@@ -856,13 +856,17 @@ function ScrollToTop() {
   return null;
 }
 
+import { SanityProvider } from './context/SanityContext';
+
 export default function App() {
   return (
     <HelmetProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <AppContent />
-      </BrowserRouter>
+      <SanityProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <AppContent />
+        </BrowserRouter>
+      </SanityProvider>
     </HelmetProvider>
   );
 }

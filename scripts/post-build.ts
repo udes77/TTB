@@ -25,6 +25,7 @@ const getRoutes = () => {
     .filter(id => content.indexOf(id) > content.indexOf('SUBURBS = ['));
 
   return [
+    'admin',
     'emergency-gps',
     'gallery',
     'suburbs',
